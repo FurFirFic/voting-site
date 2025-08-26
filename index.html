@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система голосования</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Онлайн голосование</h1>
+            <div id="status" class="status stopped">Голосование остановлено</div>
+        </header>
+
+        <main>
+            <div class="voting-section">
+                <h2>Голосование за лучший проект</h2>
+                <div class="options">
+                    <div class="option" data-id="1">
+                        <h3>Проект А</h3>
+                        <div class="votes">0 голосов</div>
+                        <button class="vote-btn" onclick="vote(1)">Голосовать</button>
+                    </div>
+                    <div class="option" data-id="2">
+                        <h3>Проект Б</h3>
+                        <div class="votes">0 голосов</div>
+                        <button class="vote-btn" onclick="vote(2)">Голосовать</button>
+                    </div>
+                    <div class="option" data-id="3">
+                        <h3>Проект В</h3>
+                        <div class="votes">0 голосов</div>
+                        <button class="vote-btn" onclick="vote(3)">Голосовать</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results">
+                <h2>Результаты</h2>
+                <canvas id="resultsChart"></canvas>
+            </div>
+        </main>
+
+        <footer>
+            <p>Админ-панель: <a href="admin.html">перейти</a></p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

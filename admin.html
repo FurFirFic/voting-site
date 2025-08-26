@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Админ-панель голосования</h1>
+            <a href="index.html">← Назад к голосованию</a>
+        </header>
+
+        <main>
+            <div class="admin-controls">
+                <h2>Управление голосованием</h2>
+                <div class="control-buttons">
+                    <button onclick="startVoting()" class="btn-start">Запустить голосование</button>
+                    <button onclick="stopVoting()" class="btn-stop">Остановить голосование</button>
+                    <button onclick="resetVotes()" class="btn-reset">Сбросить голоса</button>
+                </div>
+
+                <div class="status-panel">
+                    <h3>Статус: <span id="adminStatus">остановлено</span></h3>
+                    <h3>Всего голосов: <span id="totalVotes">0</span></h3>
+                </div>
+            </div>
+
+            <div class="results-admin">
+                <h2>Детальные результаты</h2>
+                <div id="detailedResults"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
