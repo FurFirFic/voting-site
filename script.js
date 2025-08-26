@@ -286,7 +286,7 @@ function updateOptions() {
                 <div class="votes">${option.votes} голосов</div>
                 <button class="vote-btn" onclick="vote(${option.id})" 
                     ${!votingConfig.isActive || hasUserVoted() ? 'disabled' : ''}>
-                    ${hasUserVoted() ? 'Вы проголосовали' : 'Голосовать'}
+                    ${hasUserVoted() ? ' Вы проголосовали' : ' Голосовать'}
                 </button>
             </div>
         `).join('');
