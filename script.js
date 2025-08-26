@@ -101,17 +101,17 @@ function loadFromLocalStorage() {
             console.error('Ошибка загрузки данных:', e);
             // Создаем стандартную конфигурацию при ошибке
             votingConfig.options = [
-                { id: 1, name: "Проект А", votes: 0 },
-                { id: 2, name: "Проект Б", votes: 0 },
-                { id: 3, name: "Проект В", votes: 0 }
+                { id: 1, name: "error А", votes: 0 },
+                { id: 2, name: "error Б", votes: 0 },
+                { id: 3, name: "error В", votes: 0 }
             ];
         }
     } else {
         // Если данных нет, создаем стандартную конфигурацию
         votingConfig.options = [
-            { id: 1, name: "Проект А", votes: 0 },
-            { id: 2, name: "Проект Б", votes: 0 },
-            { id: 3, name: "Проект В", votes: 0 }
+            { id: 1, name: "error А", votes: 0 },
+            { id: 2, name: "error Б", votes: 0 },
+            { id: 3, name: "error В", votes: 0 }
         ];
     }
 }
@@ -156,7 +156,7 @@ function vote(optionId) {
         votingConfig.votedUsers.push(userId);
         saveToLocalStorage();
         updateUI();
-        showNotification(`✅ Ваш голос за "${option.name}" засчитан!`);
+        showNotification(`Ваш голос за "${option.name}" засчитан!`);
     }
 }
 
@@ -182,7 +182,7 @@ function addOption() {
         saveToLocalStorage();
         updateUI();
         loadOptionsList();
-        showNotification('✅ Вариант ответа добавлен!');
+        showNotification('Вариант ответа добавлен!');
     } else {
         alert('Введите текст варианта ответа!');
     }
@@ -195,7 +195,7 @@ function removeOption(optionId) {
         saveToLocalStorage();
         updateUI();
         loadOptionsList();
-        showNotification('✅ Вариант ответа удален!');
+        showNotification('Вариант ответа удален!');
     }
 }
 
@@ -206,7 +206,7 @@ function loadOptionsList() {
         container.innerHTML = votingConfig.options.map(option => `
             <div class="option-item">
                 <span>${option.name}</span>
-                <button onclick="removeOption(${option.id})">🗑️ Удалить</button>
+                <button onclick="removeOption(${option.id})"> Удалить</button>
             </div>
         `).join('');
     }
@@ -230,7 +230,7 @@ function updateStatus() {
     
     if (statusElement) {
         statusElement.textContent = votingConfig.isActive ? 
-            '✅ Голосование активно' : '⏹️ Голосование остановлено';
+            'Голосование активно' : 'Голосование остановлено';
         statusElement.className = `status ${votingConfig.isActive ? 'active' : 'stopped'}`;
     }
     
@@ -257,7 +257,7 @@ function updateOptions() {
                 <div class="votes">${option.votes} голосов</div>
                 <button class="vote-btn" onclick="vote(${option.id})" 
                     ${!votingConfig.isActive || hasUserVoted() ? 'disabled' : ''}>
-                    ${hasUserVoted() ? '✅ Вы проголосовали' : '🗳️ Голосовать'}
+                    ${hasUserVoted() ? 'ы проголосовали' : 'Проголосовать'}
                 </button>
             </div>
         `).join('');
@@ -304,14 +304,14 @@ function startVoting() {
     votingConfig.isActive = true;
     saveToLocalStorage();
     updateUI();
-    showNotification('🚀 Голосование запущено!');
+    showNotification('Голосование запущено!');
 }
 
 function stopVoting() {
     votingConfig.isActive = false;
     saveToLocalStorage();
     updateUI();
-    showNotification('⏹️ Голосование остановлено!');
+    showNotification('Голосование остановлено!');
 }
 
 function resetVotes() {
@@ -322,7 +322,7 @@ function resetVotes() {
         votingConfig.votedUsers = [];
         saveToLocalStorage();
         updateUI();
-        showNotification('🔄 Голоса сброшены!');
+        showNotification('Голоса сброшены!');
     }
 }
 
