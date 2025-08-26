@@ -2,8 +2,9 @@
 let votingConfig = {
     isActive: false,
     options: [],
-    adminPassword: "admin123", // Пароль по умолчанию
-    votedUsers: [] // Массив для отслеживания проголосовавших
+    adminPassword: "a.dM.In!111",
+    votedUsers: [],
+    votingTitle: "Голосование" // Новое поле для заголовка
 };
 
 // Инициализация при загрузке страницы
@@ -29,6 +30,12 @@ function setupAdminPage() {
                 login();
             }
         });
+    }
+    
+    // Заполняем поле заголовка
+    const titleInput = document.getElementById('votingTitleInput');
+    if (titleInput) {
+        titleInput.value = votingConfig.votingTitle;
     }
 }
 
@@ -68,16 +75,13 @@ function login() {
     const passwordInput = document.getElementById('adminPassword');
     const password = passwordInput ? passwordInput.value : '';
     
-    console.log('Введенный пароль:', password);
-    console.log('Ожидаемый пароль:', votingConfig.adminPassword);
-    
     if (password === votingConfig.adminPassword) {
         sessionStorage.setItem('adminAuthenticated', 'true');
         showAdminSection();
-        if (passwordInput) passwordInput.value = ''; // Очищаем поле ввода
+        if (passwordInput) passwordInput.value = '';
     } else {
         alert('Неверный пароль! Попробуйте снова.');
-        if (passwordInput) passwordInput.value = ''; // Очищаем поле ввода
+        if (passwordInput) passwordInput.value = '';
     }
 }
 
@@ -97,28 +101,44 @@ function loadFromLocalStorage() {
             votingConfig.options = data.options || [];
             votingConfig.votedUsers = data.votedUsers || [];
             votingConfig.adminPassword = data.adminPassword || 'admin123';
+            votingConfig.votingTitle = data.votingTitle || 'Голосование';
         } catch (e) {
             console.error('Ошибка загрузки данных:', e);
-            // Создаем стандартную конфигурацию при ошибке
             votingConfig.options = [
-                { id: 1, name: "error А", votes: 0 },
-                { id: 2, name: "error Б", votes: 0 },
-                { id: 3, name: "error В", votes: 0 }
+                { id: 1, name: "Проект А", votes: 0 },
+                { id: 2, name: "Проект Б", votes: 0 },
+                { id: 3, name: "Проект В", votes: 0 }
             ];
+            votingConfig.votingTitle = "Голосование";
         }
     } else {
-        // Если данных нет, создаем стандартную конфигурацию
         votingConfig.options = [
-            { id: 1, name: "error А", votes: 0 },
-            { id: 2, name: "error Б", votes: 0 },
-            { id: 3, name: "error В", votes: 0 }
+            { id: 1, name: "Проект А", votes: 0 },
+            { id: 2, name: "Проект Б", votes: 0 },
+            { id: 3, name: "Проект В", votes: 0 }
         ];
+        votingConfig.votingTitle = "Голосование";
     }
 }
 
 // Сохранение данных в LocalStorage
 function saveToLocalStorage() {
     localStorage.setItem('votingData', JSON.stringify(votingConfig));
+}
+
+// Обновление заголовка голосования
+function updateVotingTitle() {
+    const titleInput = document.getElementById('votingTitleInput');
+    if (titleInput) {
+        const newTitle = titleInput.value.trim();
+        if (newTitle) {
+            votingConfig.votingTitle = newTitle;
+            saveToLocalStorage();
+            showNotification('Заголовок голосования обновлен!');
+        } else {
+            alert('Введите заголовок голосования!');
+        }
+    }
 }
 
 // Генерация уникального ID пользователя
@@ -156,7 +176,7 @@ function vote(optionId) {
         votingConfig.votedUsers.push(userId);
         saveToLocalStorage();
         updateUI();
-        showNotification(`Ваш голос за "${option.name}" засчитан!`);
+        showNotification('Ваш голос засчитан!');
     }
 }
 
@@ -206,7 +226,7 @@ function loadOptionsList() {
         container.innerHTML = votingConfig.options.map(option => `
             <div class="option-item">
                 <span>${option.name}</span>
-                <button onclick="removeOption(${option.id})"> Удалить</button>
+                <button onclick="removeOption(${option.id})">Удалить</button>
             </div>
         `).join('');
     }
@@ -215,12 +235,21 @@ function loadOptionsList() {
 // Обновление интерфейса
 function updateUI() {
     updateStatus();
+    updateVotingTitleDisplay();
     updateOptions();
     updateTotalVotes();
     updateUniqueVoters();
     updateDetailedResults();
     updateResultsTable();
     updateChart();
+}
+
+// Обновление отображения заголовка
+function updateVotingTitleDisplay() {
+    const titleElement = document.getElementById('votingTitle');
+    if (titleElement) {
+        titleElement.textContent = votingConfig.votingTitle;
+    }
 }
 
 // Обновление статуса
@@ -257,7 +286,7 @@ function updateOptions() {
                 <div class="votes">${option.votes} голосов</div>
                 <button class="vote-btn" onclick="vote(${option.id})" 
                     ${!votingConfig.isActive || hasUserVoted() ? 'disabled' : ''}>
-                    ${hasUserVoted() ? 'ы проголосовали' : 'Проголосовать'}
+                    ${hasUserVoted() ? 'Вы проголосовали' : 'Голосовать'}
                 </button>
             </div>
         `).join('');
@@ -283,7 +312,7 @@ function updateResultsTable() {
             const percentage = total > 0 ? ((option.votes / total) * 100).toFixed(1) : 0;
             return `
                 <tr>
-                    <td><strong>${option.name}</strong></td>
+                    <td>${option.name}</td>
                     <td>${option.votes}</td>
                     <td>${percentage}%</td>
                     <td>
@@ -341,21 +370,10 @@ function setupChart() {
                     data: votingConfig.options.map(opt => opt.votes),
                     backgroundColor: [
                         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
-                    ],
-                    borderColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
                     ],
                     borderWidth: 2,
-                    borderRadius: 8,
-                    hoverBackgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
-                    ]
+                    borderRadius: 8
                 }]
             },
             options: {
@@ -370,38 +388,13 @@ function setupChart() {
                         font: {
                             size: 18,
                             weight: 'bold'
-                        },
-                        color: '#2c3e50'
+                        }
                     }
                 },
                 scales: {
                     y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
-                        },
-                        ticks: {
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
-                        },
-                        ticks: {
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            }
-                        }
+                        beginAtZero: true
                     }
-                },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeOutQuart'
                 }
             }
         });
@@ -447,26 +440,11 @@ function updateDetailedResults() {
 
 // Вспомогательные функции
 function showNotification(message) {
-    // Удаляем старые уведомления
     const oldNotifications = document.querySelectorAll('.custom-notification');
     oldNotifications.forEach(notif => notif.remove());
     
     const notification = document.createElement('div');
     notification.className = 'custom-notification';
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
-        color: white;
-        padding: 18px 28px;
-        border-radius: 12px;
-        z-index: 1000;
-        animation: slideIn 0.3s ease;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        font-weight: bold;
-        font-size: 1.1em;
-    `;
     notification.textContent = message;
     
     document.body.appendChild(notification);
@@ -478,34 +456,17 @@ function showNotification(message) {
     }, 3000);
 }
 
-// Проверка статуса голосования
-function checkVotingStatus() {
-    // Дополнительная логика если нужна
-}
-
 // Добавляем стили для анимации
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {
-        from { 
-            transform: translateX(100px); 
-            opacity: 0; 
-        }
-        to { 
-            transform: translateX(0); 
-            opacity: 1; 
-        }
+        from { transform: translateX(100px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
     }
     
     @keyframes fadeIn {
-        from { 
-            opacity: 0; 
-            transform: translateY(20px); 
-        }
-        to { 
-            opacity: 1; 
-            transform: translateY(0); 
-        }
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
     .results-grid {
@@ -529,7 +490,6 @@ style.textContent = `
         margin: 15px 0;
         overflow: hidden;
         box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
-        position: relative;
     }
     
     .progress {
@@ -543,7 +503,6 @@ style.textContent = `
         color: white;
         font-weight: bold;
         font-size: 0.9em;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     }
     
     .result-numbers {
@@ -553,7 +512,6 @@ style.textContent = `
         font-weight: bold;
         color: #2c3e50;
         font-size: 1.1em;
-        margin-top: 10px;
     }
     
     .custom-notification {
@@ -568,14 +526,8 @@ style.textContent = `
         animation: slideIn 0.3s ease;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         font-weight: bold;
-        font-size: 1.1em;
     }
     
-    .option {
-        animation: fadeIn 0.5s ease;
-    }
-    
-    /* Стили для таблицы */
     .results-table {
         width: 100%;
         border-collapse: collapse;
@@ -584,7 +536,6 @@ style.textContent = `
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        animation: fadeIn 0.5s ease;
     }
     
     .results-table th,
@@ -598,8 +549,6 @@ style.textContent = `
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         font-weight: bold;
-        text-transform: uppercase;
-        font-size: 0.9em;
     }
     
     .results-table tr:last-child td {
@@ -609,25 +558,5 @@ style.textContent = `
     .results-table tr:hover {
         background: rgba(102, 126, 234, 0.05);
     }
-    
-    .results-table td:nth-child(1) {
-        font-weight: bold;
-        color: #2c3e50;
-    }
-    
-    .results-table td:nth-child(2),
-    .results-table td:nth-child(3) {
-        text-align: center;
-        font-weight: bold;
-    }
-    
-    .results-table td:nth-child(4) {
-        min-width: 200px;
-    }
 `;
 document.head.appendChild(style);
-
-// Функция для тестирования (можно удалить в продакшене)
-function testNotification() {
-    showNotification('Тестовое уведомление!');
-}

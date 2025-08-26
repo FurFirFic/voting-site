@@ -3,47 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ-панель</title>
+    <title>Админ-панель ИНЛИ</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <div id="loginSection">
-            <h2> Вход в админ-панель</h2>
+            <h2>Вход в админ-панель</h2>
             <input type="password" id="adminPassword" placeholder="Введите пароль администратора">
             <button onclick="login()">Войти</button>
         </div>
 
         <div id="adminSection" style="display: none;">
             <header>
-                <h1>⚙️ Админ-панель голосования</h1>
+                <h1>Админ-панель голосования ИНЛИ</h1>
                 <div>
-                    <a href="index.html">← Назад к голосованию</a>
-                    <button onclick="logout()" style="margin-left: 20px; padding: 10px 20px;"> Выйти</button>
+                    <a href="index.html">Назад к голосованию</a>
+                    <button onclick="logout()" style="margin-left: 20px; padding: 10px 20px;">Выйти</button>
                 </div>
             </header>
 
             <main>
                 <div class="admin-controls">
-                    <h2> Управление голосованием</h2>
+                    <h2>Управление голосованием</h2>
                     <div class="control-buttons">
-                        <button onclick="startVoting()" class="btn-start"> Запустить голосование</button>
-                        <button onclick="stopVoting()" class="btn-stop"> Остановить голосование</button>
-                        <button onclick="resetVotes()" class="btn-reset"> Сбросить голоса</button>
+                        <button onclick="startVoting()" class="btn-start">Запустить голосование</button>
+                        <button onclick="stopVoting()" class="btn-stop">Остановить голосование</button>
+                        <button onclick="resetVotes()" class="btn-reset">Сбросить голоса</button>
                     </div>
 
                     <div class="status-panel">
-                        <h3> Статус: <span id="adminStatus">остановлено</span></h3>
-                        <h3> Всего голосов: <span id="totalVotes">0</span></h3>
-                        <h3> Уникальных voters: <span id="uniqueVoters">0</span></h3>
+                        <h3>Статус: <span id="adminStatus">остановлено</span></h3>
+                        <h3>Всего голосов: <span id="totalVotes">0</span></h3>
+                        <h3>Уникальных voters: <span id="uniqueVoters">0</span></h3>
                     </div>
                 </div>
 
                 <div class="admin-options">
-                    <h2> Управление вариантами ответа</h2>
+                    <h2>Настройки голосования</h2>
+                    
+                    <div class="setting-item">
+                        <label>Заголовок голосования:</label>
+                        <input type="text" id="votingTitleInput" placeholder="Введите заголовок голосования">
+                        <button onclick="updateVotingTitle()">Обновить заголовок</button>
+                    </div>
+
+                    <h3>Управление вариантами ответа</h3>
                     <div class="add-option">
                         <input type="text" id="newOptionText" placeholder="Введите новый вариант ответа">
-                        <button onclick="addOption()">➕ Добавить вариант</button>
+                        <button onclick="addOption()">Добавить вариант</button>
                     </div>
                     <div id="optionsList" class="options-list">
                         <!-- Список вариантов будет здесь -->
@@ -51,7 +59,7 @@
                 </div>
 
                 <div class="results-admin">
-                    <h2> Детальные результаты</h2>
+                    <h2>Детальные результаты</h2>
                     
                     <!-- Таблица результатов -->
                     <table class="results-table">
