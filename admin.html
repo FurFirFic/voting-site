@@ -8,31 +8,51 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Админ-панель голосования</h1>
-            <a href="index.html">← Назад к голосованию</a>
-        </header>
+        <div id="loginSection">
+            <h2>Вход в админ-панель</h2>
+            <input type="password" id="adminPassword" placeholder="Введите пароль администратора">
+            <button onclick="login()">Войти</button>
+        </div>
 
-        <main>
-            <div class="admin-controls">
-                <h2>Управление голосованием</h2>
-                <div class="control-buttons">
-                    <button onclick="startVoting()" class="btn-start">Запустить голосование</button>
-                    <button onclick="stopVoting()" class="btn-stop">Остановить голосование</button>
-                    <button onclick="resetVotes()" class="btn-reset">Сбросить голоса</button>
+        <div id="adminSection" style="display: none;">
+            <header>
+                <h1>Админ-панель голосования</h1>
+                <a href="index.html">← Назад к голосованию</a>
+                <button onclick="logout()" style="margin-left: 20px;">Выйти</button>
+            </header>
+
+            <main>
+                <div class="admin-controls">
+                    <h2>Управление голосованием</h2>
+                    <div class="control-buttons">
+                        <button onclick="startVoting()" class="btn-start">Запустить голосование</button>
+                        <button onclick="stopVoting()" class="btn-stop">Остановить голосование</button>
+                        <button onclick="resetVotes()" class="btn-reset">Сбросить голоса</button>
+                    </div>
+
+                    <div class="status-panel">
+                        <h3>Статус: <span id="adminStatus">остановлено</span></h3>
+                        <h3>Всего голосов: <span id="totalVotes">0</span></h3>
+                    </div>
                 </div>
 
-                <div class="status-panel">
-                    <h3>Статус: <span id="adminStatus">остановлено</span></h3>
-                    <h3>Всего голосов: <span id="totalVotes">0</span></h3>
+                <div class="admin-options">
+                    <h2>Управление вариантами ответа</h2>
+                    <div class="add-option">
+                        <input type="text" id="newOptionText" placeholder="Новый вариант ответа">
+                        <button onclick="addOption()">Добавить вариант</button>
+                    </div>
+                    <div id="optionsList" class="options-list">
+                        <!-- Список вариантов будет здесь -->
+                    </div>
                 </div>
-            </div>
 
-            <div class="results-admin">
-                <h2>Детальные результаты</h2>
-                <div id="detailedResults"></div>
-            </div>
-        </main>
+                <div class="results-admin">
+                    <h2>Детальные результаты</h2>
+                    <div id="detailedResults"></div>
+                </div>
+            </main>
+        </div>
     </div>
 
     <script src="script.js"></script>

@@ -15,23 +15,9 @@
 
         <main>
             <div class="voting-section">
-                <h2>Голосование за лучший проект</h2>
-                <div class="options">
-                    <div class="option" data-id="1">
-                        <h3>Проект А</h3>
-                        <div class="votes">0 голосов</div>
-                        <button class="vote-btn" onclick="vote(1)">Голосовать</button>
-                    </div>
-                    <div class="option" data-id="2">
-                        <h3>Проект Б</h3>
-                        <div class="votes">0 голосов</div>
-                        <button class="vote-btn" onclick="vote(2)">Голосовать</button>
-                    </div>
-                    <div class="option" data-id="3">
-                        <h3>Проект В</h3>
-                        <div class="votes">0 голосов</div>
-                        <button class="vote-btn" onclick="vote(3)">Голосовать</button>
-                    </div>
+                <h2 id="votingTitle">Голосование за лучший проект</h2>
+                <div id="optionsContainer" class="options">
+                    <!-- Варианты будут добавляться динамически -->
                 </div>
             </div>
 
@@ -42,7 +28,7 @@
         </main>
 
         <footer>
-            <p>Админ-панель: <a href="admin.html">перейти</a></p>
+            <p>Админ-панель: <a href="admin.html" id="adminLink">перейти</a></p>
         </footer>
     </div>
 
