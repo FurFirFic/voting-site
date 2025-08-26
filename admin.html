@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Админ-панель ИНЛИ</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <div class="container">
@@ -12,6 +15,11 @@
             <h2>Вход в админ-панель</h2>
             <input type="password" id="adminPassword" placeholder="Введите пароль администратора">
             <button onclick="login()">Войти</button>
+            
+            <div class="test-login">
+                <p>Для тестирования:</p>
+                <button onclick="testLogin()">Тестовый вход (пароль: admin123)</button>
+            </div>
         </div>
 
         <div id="adminSection" style="display: none;">
@@ -19,7 +27,7 @@
                 <h1>Админ-панель голосования ИНЛИ</h1>
                 <div>
                     <a href="index.html">Назад к голосованию</a>
-                    <button onclick="logout()" style="margin-left: 20px; padding: 10px 20px;">Выйти</button>
+                    <button onclick="logout()">Выйти</button>
                 </div>
             </header>
 
@@ -61,7 +69,6 @@
                 <div class="results-admin">
                     <h2>Детальные результаты</h2>
                     
-                    <!-- Таблица результатов -->
                     <table class="results-table">
                         <thead>
                             <tr>
