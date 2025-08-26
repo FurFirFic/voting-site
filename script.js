@@ -2,7 +2,7 @@
 let votingConfig = {
     isActive: false,
     options: [],
-    adminPassword: "cfmot admin. 111", // Пароль по умолчанию
+    adminPassword: "admin123", // Пароль по умолчанию
     votedUsers: [] // Массив для отслеживания проголосовавших
 };
 
@@ -156,7 +156,7 @@ function vote(optionId) {
         votingConfig.votedUsers.push(userId);
         saveToLocalStorage();
         updateUI();
-        showNotification(`Ваш голос за "${option.name}" засчитан!`);
+        showNotification(`✅ Ваш голос за "${option.name}" засчитан!`);
     }
 }
 
@@ -182,7 +182,7 @@ function addOption() {
         saveToLocalStorage();
         updateUI();
         loadOptionsList();
-        showNotification('Вариант ответа добавлен!');
+        showNotification('✅ Вариант ответа добавлен!');
     } else {
         alert('Введите текст варианта ответа!');
     }
@@ -195,7 +195,7 @@ function removeOption(optionId) {
         saveToLocalStorage();
         updateUI();
         loadOptionsList();
-        showNotification('Вариант ответа удален!');
+        showNotification('✅ Вариант ответа удален!');
     }
 }
 
@@ -206,7 +206,7 @@ function loadOptionsList() {
         container.innerHTML = votingConfig.options.map(option => `
             <div class="option-item">
                 <span>${option.name}</span>
-                <button onclick="removeOption(${option.id})">Удалить</button>
+                <button onclick="removeOption(${option.id})">🗑️ Удалить</button>
             </div>
         `).join('');
     }
@@ -214,27 +214,23 @@ function loadOptionsList() {
 
 // Обновление интерфейса
 function updateUI() {
-    // Обновление статуса
     updateStatus();
-    
-    // Обновление вариантов ответа на главной странице
     updateOptions();
-    
-    // Обновление общего количества голосов
     updateTotalVotes();
-    
-    // Обновление детальных результатов
+    updateUniqueVoters();
     updateDetailedResults();
+    updateResultsTable();
     updateChart();
 }
 
+// Обновление статуса
 function updateStatus() {
     const statusElement = document.getElementById('status');
     const adminStatusElement = document.getElementById('adminStatus');
     
     if (statusElement) {
         statusElement.textContent = votingConfig.isActive ? 
-            'Голосование активно' : 'Голосование остановлено';
+            '✅ Голосование активно' : '⏹️ Голосование остановлено';
         statusElement.className = `status ${votingConfig.isActive ? 'active' : 'stopped'}`;
     }
     
@@ -243,6 +239,15 @@ function updateStatus() {
     }
 }
 
+// Обновление уникальных voters
+function updateUniqueVoters() {
+    const uniqueVotersElement = document.getElementById('uniqueVoters');
+    if (uniqueVotersElement) {
+        uniqueVotersElement.textContent = votingConfig.votedUsers.length;
+    }
+}
+
+// Обновление вариантов ответа
 function updateOptions() {
     const optionsContainer = document.getElementById('optionsContainer');
     if (optionsContainer) {
@@ -252,13 +257,14 @@ function updateOptions() {
                 <div class="votes">${option.votes} голосов</div>
                 <button class="vote-btn" onclick="vote(${option.id})" 
                     ${!votingConfig.isActive || hasUserVoted() ? 'disabled' : ''}>
-                    ${hasUserVoted() ? 'Вы проголосовали' : 'Голосовать'}
+                    ${hasUserVoted() ? '✅ Вы проголосовали' : '🗳️ Голосовать'}
                 </button>
             </div>
         `).join('');
     }
 }
 
+// Обновление общего количества голосов
 function updateTotalVotes() {
     const totalVotesElement = document.getElementById('totalVotes');
     if (totalVotesElement) {
@@ -267,19 +273,45 @@ function updateTotalVotes() {
     }
 }
 
+// Обновление таблицы результатов
+function updateResultsTable() {
+    const tableBody = document.getElementById('resultsTableBody');
+    if (tableBody) {
+        const total = votingConfig.options.reduce((sum, opt) => sum + opt.votes, 0);
+        
+        tableBody.innerHTML = votingConfig.options.map(option => {
+            const percentage = total > 0 ? ((option.votes / total) * 100).toFixed(1) : 0;
+            return `
+                <tr>
+                    <td><strong>${option.name}</strong></td>
+                    <td>${option.votes}</td>
+                    <td>${percentage}%</td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${percentage}%">
+                                ${percentage}%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+}
+
 // Админские функции
 function startVoting() {
     votingConfig.isActive = true;
     saveToLocalStorage();
     updateUI();
-    showNotification('Голосование запущено!');
+    showNotification('🚀 Голосование запущено!');
 }
 
 function stopVoting() {
     votingConfig.isActive = false;
     saveToLocalStorage();
     updateUI();
-    showNotification('Голосование остановлено!');
+    showNotification('⏹️ Голосование остановлено!');
 }
 
 function resetVotes() {
@@ -290,7 +322,7 @@ function resetVotes() {
         votingConfig.votedUsers = [];
         saveToLocalStorage();
         updateUI();
-        showNotification('Голоса сброшены!');
+        showNotification('🔄 Голоса сброшены!');
     }
 }
 
@@ -309,16 +341,67 @@ function setupChart() {
                     data: votingConfig.options.map(opt => opt.votes),
                     backgroundColor: [
                         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
+                    ],
+                    borderColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    hoverBackgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
                     ]
                 }]
             },
             options: {
                 responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Результаты голосования',
+                        font: {
+                            size: 18,
+                            weight: 'bold'
+                        },
+                        color: '#2c3e50'
+                    }
+                },
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
                     }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
                 }
             }
         });
@@ -346,7 +429,9 @@ function updateDetailedResults() {
                 <div class="result-item">
                     <h4>${option.name}</h4>
                     <div class="progress-bar">
-                        <div class="progress" style="width: ${percentage}%"></div>
+                        <div class="progress" style="width: ${percentage}%">
+                            ${percentage}%
+                        </div>
                     </div>
                     <div class="result-numbers">
                         <span>${option.votes} голосов (${percentage}%)</span>
@@ -372,12 +457,15 @@ function showNotification(message) {
         position: fixed;
         top: 20px;
         right: 20px;
-        background: #4CAF50;
+        background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
         color: white;
-        padding: 15px 25px;
-        border-radius: 5px;
+        padding: 18px 28px;
+        border-radius: 12px;
         z-index: 1000;
         animation: slideIn 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        font-weight: bold;
+        font-size: 1.1em;
     `;
     notification.textContent = message;
     
@@ -399,53 +487,147 @@ function checkVotingStatus() {
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {
-        from { transform: translateX(100px); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+        from { 
+            transform: translateX(100px); 
+            opacity: 0; 
+        }
+        to { 
+            transform: translateX(0); 
+            opacity: 1; 
+        }
+    }
+    
+    @keyframes fadeIn {
+        from { 
+            opacity: 0; 
+            transform: translateY(20px); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
     }
     
     .results-grid {
         display: grid;
-        gap: 15px;
-        margin-top: 20px;
+        gap: 20px;
+        margin-top: 25px;
     }
     
     .result-item {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 25px;
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+        animation: fadeIn 0.5s ease;
     }
     
     .progress-bar {
         background: #e9ecef;
-        height: 20px;
-        border-radius: 10px;
-        margin: 10px 0;
+        height: 25px;
+        border-radius: 12px;
+        margin: 15px 0;
         overflow: hidden;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        position: relative;
     }
     
     .progress {
-        background: linear-gradient(90deg, #007bff, #0056b3);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         height: 100%;
-        border-radius: 10px;
-        transition: width 0.3s ease;
+        border-radius: 12px;
+        transition: width 0.5s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 0.9em;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     }
     
     .result-numbers {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         font-weight: bold;
+        color: #2c3e50;
+        font-size: 1.1em;
+        margin-top: 10px;
     }
     
     .custom-notification {
         position: fixed;
         top: 20px;
         right: 20px;
-        background: #4CAF50;
+        background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
         color: white;
-        padding: 15px 25px;
-        border-radius: 5px;
+        padding: 18px 28px;
+        border-radius: 12px;
         z-index: 1000;
         animation: slideIn 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+    
+    .option {
+        animation: fadeIn 0.5s ease;
+    }
+    
+    /* Стили для таблицы */
+    .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.5s ease;
+    }
+    
+    .results-table th,
+    .results-table td {
+        padding: 18px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .results-table th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.9em;
+    }
+    
+    .results-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .results-table tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+    }
+    
+    .results-table td:nth-child(1) {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    
+    .results-table td:nth-child(2),
+    .results-table td:nth-child(3) {
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    .results-table td:nth-child(4) {
+        min-width: 200px;
     }
 `;
 document.head.appendChild(style);
+
+// Функция для тестирования (можно удалить в продакшене)
+function testNotification() {
+    showNotification('Тестовое уведомление!');
+}
