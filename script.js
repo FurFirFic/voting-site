@@ -1,10 +1,14 @@
-// Конфигурация голосования
+// Конфигурация голосования (общая для всех)
 let votingConfig = {
     isActive: false,
-    options: [],
-    adminPassword: "a.dM.In!111",
+    options: [
+        { id: 1, name: "Проект А", votes: 0 },
+        { id: 2, name: "Проект Б", votes: 0 },
+        { id: 3, name: "Проект В", votes: 0 }
+    ],
     votedUsers: [],
-    votingTitle: "Голосование" // Новое поле для заголовка
+    adminPassword: "a.dM.In!111",
+    votingTitle: "Голосование за лучший проект"
 };
 
 // Инициализация при загрузке страницы
@@ -17,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         updateUI();
         setupChart();
-        checkVotingStatus();
     }
 });
 
@@ -32,11 +35,12 @@ function setupAdminPage() {
         });
     }
     
-    // Заполняем поле заголовка
     const titleInput = document.getElementById('votingTitleInput');
     if (titleInput) {
         titleInput.value = votingConfig.votingTitle;
     }
+    
+    loadOptionsList();
 }
 
 // Проверка аутентификации администратора
@@ -98,47 +102,23 @@ function loadFromLocalStorage() {
         try {
             const data = JSON.parse(saved);
             votingConfig.isActive = data.isActive || false;
-            votingConfig.options = data.options || [];
-            votingConfig.votedUsers = data.votedUsers || [];
-            votingConfig.adminPassword = data.adminPassword || 'admin123';
-            votingConfig.votingTitle = data.votingTitle || 'Голосование';
-        } catch (e) {
-            console.error('Ошибка загрузки данных:', e);
-            votingConfig.options = [
+            votingConfig.options = data.options || [
                 { id: 1, name: "Проект А", votes: 0 },
                 { id: 2, name: "Проект Б", votes: 0 },
                 { id: 3, name: "Проект В", votes: 0 }
             ];
-            votingConfig.votingTitle = "Голосование";
+            votingConfig.votedUsers = data.votedUsers || [];
+            votingConfig.adminPassword = data.adminPassword || 'admin123';
+            votingConfig.votingTitle = data.votingTitle || 'Голосование за лучший проект';
+        } catch (e) {
+            console.error('Ошибка загрузки данных:', e);
         }
-    } else {
-        votingConfig.options = [
-            { id: 1, name: "Проект А", votes: 0 },
-            { id: 2, name: "Проект Б", votes: 0 },
-            { id: 3, name: "Проект В", votes: 0 }
-        ];
-        votingConfig.votingTitle = "Голосование";
     }
 }
 
 // Сохранение данных в LocalStorage
 function saveToLocalStorage() {
     localStorage.setItem('votingData', JSON.stringify(votingConfig));
-}
-
-// Обновление заголовка голосования
-function updateVotingTitle() {
-    const titleInput = document.getElementById('votingTitleInput');
-    if (titleInput) {
-        const newTitle = titleInput.value.trim();
-        if (newTitle) {
-            votingConfig.votingTitle = newTitle;
-            saveToLocalStorage();
-            showNotification('Заголовок голосования обновлен!');
-        } else {
-            alert('Введите заголовок голосования!');
-        }
-    }
 }
 
 // Генерация уникального ID пользователя
@@ -177,6 +157,21 @@ function vote(optionId) {
         saveToLocalStorage();
         updateUI();
         showNotification('Ваш голос засчитан!');
+    }
+}
+
+// Обновление заголовка голосования
+function updateVotingTitle() {
+    const titleInput = document.getElementById('votingTitleInput');
+    if (titleInput) {
+        const newTitle = titleInput.value.trim();
+        if (newTitle) {
+            votingConfig.votingTitle = newTitle;
+            saveToLocalStorage();
+            showNotification('Заголовок голосования обновлен!');
+        } else {
+            alert('Введите заголовок голосования!');
+        }
     }
 }
 
@@ -286,7 +281,7 @@ function updateOptions() {
                 <div class="votes">${option.votes} голосов</div>
                 <button class="vote-btn" onclick="vote(${option.id})" 
                     ${!votingConfig.isActive || hasUserVoted() ? 'disabled' : ''}>
-                    ${hasUserVoted() ? ' Вы проголосовали' : ' Голосовать'}
+                    ${hasUserVoted() ? 'Вы проголосовали' : 'Голосовать'}
                 </button>
             </div>
         `).join('');
