@@ -1,0 +1,5 @@
+title: Voting System
+description: Online voting system
+theme: minimal
+include: [".nojekyll"]
+exclude: ["README.md"]
