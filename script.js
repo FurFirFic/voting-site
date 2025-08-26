@@ -17,7 +17,7 @@ let votingConfig = {
     isActive: false,
     options: [],
     votingTitle: "Голосование",
-    adminPassword: "a.dM.In!111"
+    adminPassword: "admin123"
 };
 
 let currentUserVoted = false;
@@ -52,7 +52,7 @@ async function loadVotingData() {
             votingConfig.isActive = data.isActive || false;
             votingConfig.options = data.options || [];
             votingConfig.votingTitle = data.votingTitle || "Голосование";
-            votingConfig.adminPassword = data.adminPassword || "a.dM.In!111";
+            votingConfig.adminPassword = data.adminPassword || "admin123";
         } else {
             // Создаем начальные данные
             await initVotingData();
@@ -73,7 +73,7 @@ async function initVotingData() {
             { id: 3, name: "Проект В", votes: 0 }
         ],
         votingTitle: "Голосование за лучший проект",
-        adminPassword: "a.dM.In!111"
+        adminPassword: "admin123"
     };
     
     await db.collection('voting').doc('config').set(votingConfig);
