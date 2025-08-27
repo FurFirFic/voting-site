@@ -297,7 +297,13 @@ async function resetVotes() {
     }
 }
 
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ: Добавление варианта ответа
 async function addOption() {
+    if (votingConfig.isActive) {
+        showNotification('Нельзя добавлять варианты во время активного голосования!', true);
+        return;
+    }
+    
     const input = document.getElementById('newOptionText');
     if (!input) return;
     
@@ -309,70 +315,120 @@ async function addOption() {
                 ? Math.max(...votingConfig.options.map(opt => opt.id)) + 1 
                 : 1;
             
-            votingConfig.options.push({
+            const newOption = {
                 id: newId,
                 name: text,
                 votes: 0
-            });
+            };
             
+            // Обновляем локальную конфигурацию
+            votingConfig.options.push(newOption);
+            
+            // Сохраняем в Firebase
             await db.collection('voting').doc('config').update({
                 options: votingConfig.options
             });
             
             input.value = '';
             showNotification('Вариант ответа добавлен!');
+            
+            // ОБНОВЛЯЕМ ИНТЕРФЕЙС
             loadOptionsList();
+            updateUI();
+            
         } catch (error) {
-            console.error('Ошибка:', error);
-            showNotification('Ошибка добавления варианта', true);
+            console.error('Ошибка добавления варианта:', error);
+            showNotification('Ошибка добавления варианта: ' + error.message, true);
         }
+    } else {
+        showNotification('Введите текст варианта ответа!', true);
     }
 }
 
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ: Удаление варианта ответа
 async function removeOption(optionId) {
+    if (votingConfig.isActive) {
+        showNotification('Нельзя удалять варианты во время активного голосования!', true);
+        return;
+    }
+    
     if (confirm('Удалить этот вариант ответа?')) {
         try {
+            // Удаляем вариант из локальной конфигурации
             votingConfig.options = votingConfig.options.filter(opt => opt.id !== optionId);
+            
+            // Сохраняем в Firebase
             await db.collection('voting').doc('config').update({
                 options: votingConfig.options
             });
+            
             showNotification('Вариант ответа удален!');
+            
+            // ОБНОВЛЯЕМ ИНТЕРФЕЙС
             loadOptionsList();
+            updateUI();
+            
         } catch (error) {
-            console.error('Ошибка:', error);
-            showNotification('Ошибка удаления варианта', true);
+            console.error('Ошибка удаления варианта:', error);
+            showNotification('Ошибка удаления варианта: ' + error.message, true);
         }
     }
 }
 
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ: Обновление заголовка
 async function updateVotingTitle() {
     const titleInput = document.getElementById('votingTitleInput');
-    if (titleInput) {
-        const newTitle = titleInput.value.trim();
-        if (newTitle) {
-            try {
-                votingConfig.votingTitle = newTitle;
-                await db.collection('voting').doc('config').update({
-                    votingTitle: newTitle
-                });
-                showNotification('Заголовок голосования обновлен!');
-            } catch (error) {
-                console.error('Ошибка:', error);
-                showNotification('Ошибка обновления заголовка', true);
-            }
+    if (!titleInput) {
+        console.error('Элемент votingTitleInput не найден');
+        return;
+    }
+    
+    const newTitle = titleInput.value.trim();
+    console.log('Новый заголовок:', newTitle);
+    
+    if (newTitle) {
+        try {
+            // Проверяем подключение к Firebase
+            await db.collection('voting').doc('config').get();
+            
+            // Обновляем локальную конфигурацию
+            votingConfig.votingTitle = newTitle;
+            
+            // Сохраняем в Firebase
+            await db.collection('voting').doc('config').update({
+                votingTitle: newTitle
+            });
+            
+            showNotification('Заголовок голосования обновлен!');
+            
+            // ОБНОВЛЯЕМ ИНТЕРФЕЙС
+            updateVotingTitleDisplay();
+            
+        } catch (error) {
+            console.error('Ошибка обновления заголовка:', error);
+            showNotification('Ошибка обновления заголовка: ' + error.message, true);
         }
+    } else {
+        showNotification('Введите заголовок голосования!', true);
     }
 }
 
 function loadOptionsList() {
     const container = document.getElementById('optionsList');
     if (container) {
-        container.innerHTML = votingConfig.options.map(option => `
-            <div class="option-item">
-                <span>${option.name}</span>
-                <button onclick="removeOption(${option.id})">Удалить</button>
-            </div>
-        `).join('');
+        if (votingConfig.options.length === 0) {
+            container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Нет вариантов ответа</p>';
+        } else {
+            container.innerHTML = votingConfig.options.map(option => `
+                <div class="option-item">
+                    <span>${option.name} (ID: ${option.id})</span>
+                    <button onclick="removeOption(${option.id})" 
+                            ${votingConfig.isActive ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>
+                        Удалить
+                    </button>
+                </div>
+            `).join('');
+        }
     }
 }
 
@@ -406,6 +462,12 @@ function updateVotingTitleDisplay() {
     const titleElement = document.getElementById('votingTitle');
     if (titleElement) {
         titleElement.textContent = votingConfig.votingTitle;
+    }
+    
+    // Также обновляем поле ввода в админке
+    const titleInput = document.getElementById('votingTitleInput');
+    if (titleInput) {
+        titleInput.value = votingConfig.votingTitle;
     }
 }
 
@@ -506,14 +568,26 @@ function setupChart() {
                 datasets: [{
                     label: 'Голоса',
                     data: votingConfig.options.map(opt => opt.votes),
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
-                    borderWidth: 2
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+                    borderWidth: 2,
+                    borderRadius: 5
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Результаты голосования',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
                 }
             }
         });
@@ -549,6 +623,7 @@ function showNotification(message, isError = false) {
         z-index: 1000;
         animation: slideIn 0.3s ease;
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        font-weight: bold;
     `;
     notification.textContent = message;
     
@@ -576,6 +651,26 @@ style.textContent = `
         border-radius: 8px;
         z-index: 1000;
         animation: slideIn 0.3s ease;
+    }
+    
+    .results-grid {
+        display: grid;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .result-item {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .result-numbers {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        font-weight: bold;
     }
 `;
 document.head.appendChild(style);
